@@ -10,6 +10,6 @@ namespace Bulimia.MessengerClient.DAL
         public static string GetMessages = ServerName + "/Messages/GetUserChat";
         public static string GetUsernameById = ServerName + "/Users/GetUsernameById";
         public static string CreateMessage = ServerName + "/Messages/CreateMessage";
-
+        public static string DeleteMessage = ServerName + "/Messages/DeleteMessage";
     }
 }

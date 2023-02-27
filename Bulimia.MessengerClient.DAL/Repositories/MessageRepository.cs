@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,10 +19,10 @@ namespace Bulimia.MessengerClient.DAL.Repositories
         {
             var response = await BaseRepository.Client.PostAsync(Api.GetChats + $"?id={id}", null);
 
-            var content = await response.Content.ReadAsStringAsync();
-
             if (!response.IsSuccessStatusCode)
                 return null;
+
+            var content = await response.Content.ReadAsStringAsync();
 
             if (content == null)
                 return null;
@@ -31,12 +32,12 @@ namespace Bulimia.MessengerClient.DAL.Repositories
             return chats;
         }
 
-        public async Task<List<MessageDto>> GetMessages(int senderId, int receiverId)
+        public async Task<List<MessageDto>> GetMessages(int mainUserId, int companionUserId)
         {
             var request = new UserChatRequest
             {
-                ReceiverId = receiverId,
-                SenderId = senderId
+                ReceiverId = mainUserId,
+                SenderId = companionUserId
             };
 
             var json = JsonConvert.SerializeObject(request);
@@ -53,35 +54,42 @@ namespace Bulimia.MessengerClient.DAL.Repositories
 
             var messageRecords = JsonConvert.DeserializeObject<List<MessageRecord>>(content);
 
-            var receiverResponse =
-                await BaseRepository.Client.PostAsync(Api.GetUsernameById + $"?id={receiverId}", null);
+            var companionResponse =
+                await BaseRepository.Client.PostAsync(Api.GetUsernameById + $"?id={companionUserId}", null);
 
-            var receiverUsername = await receiverResponse.Content.ReadAsStringAsync();
+            var companionUsername = await companionResponse.Content.ReadAsStringAsync();
 
-            var senderResponse =
-                await BaseRepository.Client.PostAsync(Api.GetUsernameById + $"?id={senderId}", null);
+            var mainUserResponse =
+                await BaseRepository.Client.PostAsync(Api.GetUsernameById + $"?id={mainUserId}", null);
 
-            var senderUsername = await senderResponse.Content.ReadAsStringAsync();
+            var mainUsername = await mainUserResponse.Content.ReadAsStringAsync();
+
+            var companions = new List<(int, string)>
+            {
+                (mainUserId, mainUsername ),
+                (companionUserId, companionUsername)
+            };
 
             var items = new List<MessageDto>(messageRecords.Capacity);
 
             foreach (var message in messageRecords)
             {
-                items.Add(Map(message, senderUsername, receiverUsername));
+                items.Add(Map(message, companions, mainUserId));
             }
 
             return items;
         }
 
-        private MessageDto Map(MessageRecord message, string senderUsername, string receiverUsername)
+        private MessageDto Map(MessageRecord message, List<(int, string)> companions, int mainUserId)
         {
-            return new MessageDto            
+            return new MessageDto(mainUserId)            
             {
-                Text = message.Text,
-                DateTimeOfDelivery = message.DateTimeOfDelivery,
                 Id = message.Id,
-                ReceiverUsername = receiverUsername,
-                SenderUsername = senderUsername
+                Text = message.Text,
+                SenderId = message.SenderId,
+                DateTimeOfDelivery = message.DateTimeOfDelivery,
+                ReceiverUsername = companions.FirstOrDefault(x=>x.Item1 == message.ReceiverId).Item2,
+                SenderUsername = companions.FirstOrDefault(x=>x.Item1 == message.SenderId).Item2
             };
         }
 
@@ -99,6 +107,19 @@ namespace Bulimia.MessengerClient.DAL.Repositories
             var messageId = JsonConvert.DeserializeObject<int>(content);
 
             return messageId;
+        }
+
+        public async Task<int> DeleteMessage(int id)
+        {
+            var responce = await BaseRepository.Client.PostAsync(Api.DeleteMessage + $"?id={id}", null);
+            if (!responce.IsSuccessStatusCode)
+                return 0;
+
+            var content = await responce.Content.ReadAsStringAsync();
+            if (content == null)
+                return 0;
+
+            return JsonConvert.DeserializeObject<int>(content);
         }
     }
 }

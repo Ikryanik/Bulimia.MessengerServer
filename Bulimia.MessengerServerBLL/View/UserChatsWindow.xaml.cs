@@ -4,7 +4,7 @@ using System.Windows;
 using Bulimia.MessengerClient.BLL;
 using Bulimia.MessengerClient.Domain.Core;
 
-namespace Bulimia.MessengerClient
+namespace Bulimia.MessengerClient.View
 {
     /// <summary>
     /// Логика взаимодействия для UserChatsWindow.xaml

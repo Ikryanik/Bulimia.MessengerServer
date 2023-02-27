@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Bulimia.MessengerClient.BLL;
 using Bulimia.MessengerClient.Domain.Core;
 
-namespace Bulimia.MessengerClient
+namespace Bulimia.MessengerClient.View
 {
     /// <summary>
     /// Логика взаимодействия для ChatWindow.xaml
@@ -52,9 +42,25 @@ namespace Bulimia.MessengerClient
             ListViewMessages.Visibility = Visibility.Visible;
         }
 
-        private void DeleteMessage_OnClick(object sender, RoutedEventArgs e)
+        private async void DeleteMessage_OnClick(object sender, RoutedEventArgs e)
         {
+            var item = ListViewMessages.SelectedItem;
 
+            if (item == null)
+                return;
+
+            var result = 0;
+            
+            if (item is MessageDto message)
+                result = await _chatClient.DeleteMessage(message.Id);
+
+            if (result == 0)
+            {
+                MessageBox.Show("Произошла ошибка");
+                return;
+            }
+
+            await Init();
         }
 
         private void UpdateMessage_OnClick(object sender, RoutedEventArgs e)
@@ -70,7 +76,7 @@ namespace Bulimia.MessengerClient
                 ReceiverId = _chat.Id,
                 Text = TextBoxMessage.Text,
             };
-            
+
             var result = await _chatClient.CreateMessage(message);
 
             if (result == 0)
@@ -92,7 +98,7 @@ namespace Bulimia.MessengerClient
         private void GridMessage_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ListViewMessages.SelectedItem != null)
-                PanelItemManipulating.Visibility = Visibility.Visible;
+                PanelItemManipulating.Visibility = ((MessageDto)ListViewMessages.SelectedItem).ManipulatingButtonsVisibility;
             else
                 PanelItemManipulating.Visibility = Visibility.Collapsed;
         }

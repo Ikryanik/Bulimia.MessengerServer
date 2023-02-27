@@ -1,8 +1,9 @@
 ﻿using System.Windows;
 using Bulimia.MessengerClient.BLL;
 using Bulimia.MessengerClient.Domain.Core;
+using Bulimia.MessengerClient.ViewModel;
 
-namespace Bulimia.MessengerClient
+namespace Bulimia.MessengerClient.View
 {
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml

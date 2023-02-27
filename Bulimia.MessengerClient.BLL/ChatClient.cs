@@ -29,5 +29,10 @@ namespace Bulimia.MessengerClient.BLL
         {
             return await _messageRepository.CreateMessage(message);
         }
+
+        public async Task<int> DeleteMessage(int id)
+        {
+            return await _messageRepository.DeleteMessage(id);
+        }
     }
 }
