@@ -23,14 +23,17 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <Label Content="Имя пользователя" />
-        <TextBox x:Name="TextBoxUsername" Grid.Column="1" Width="120" />
+        <TextBox
+            x:Name="TextBoxUsername"
+            Grid.Column="1"
+            Width="120"
+            Text="{Binding Username}"/>
         <Button
             x:Name="ButtonAuthenticate"
             Grid.Row="1"
             Grid.ColumnSpan="2"
             Width="100"
             Margin="3"
-            Click="ButtonAuthenticate_OnClick"
             Content="Войти" />
         <Button
             x:Name="ButtonRegister"
@@ -38,7 +41,7 @@
             Grid.ColumnSpan="2"
             Width="120"
             Margin="3"
-            Click="ButtonRegister_OnClick"
+            Command="{Binding RegisterCommand}"
             Content="Зарегестрироваться"
             Visibility="Collapsed" />
         <Label

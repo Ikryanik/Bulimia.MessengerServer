@@ -13,5 +13,6 @@ namespace Bulimia.MessengerClient
     /// </summary>
     public partial class App : Application
     {
+
     }
 }
