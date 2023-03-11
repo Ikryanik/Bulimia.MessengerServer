@@ -1,68 +1,61 @@
-﻿using System.Windows;
+﻿using System.Reactive.Disposables;
+using System.Windows;
 using Bulimia.MessengerClient.BLL;
 using Bulimia.MessengerClient.ViewModel;
+using ReactiveUI;
 
 namespace Bulimia.MessengerClient.View
 {
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : ReactiveUserControl<MainWindowViewModel>
     {
-       private readonly UserManagerClient _userManagerClient;
-       public MainWindow()
-       {
-           _userManagerClient = new UserManagerClient();
-           InitializeComponent();
-           DataContext = new MainWindowViewModel();
-       }
-       
-       private async void ButtonAuthenticate_OnClick(object sender, RoutedEventArgs e)
-       {
-           var username = TextBoxUsername.Text.Trim();
-       
-           if (string.IsNullOrWhiteSpace(username))
-           {
-               MessageBox.Show("Имя не может быть пустым");
-               return;
-           }
-       
-           var result = await _userManagerClient.Authenticate(username);
-       
-           if (result == null)
-           {
-               MessageBox.Show("Неверное имя");
-               return;
-           }
-       
-           var userChatsWindow = new UserChatsWindow(result.Id);
-           userChatsWindow.Show();
-           await userChatsWindow.Init();
-           Close();
-       }
-       
-       
-       private void LinkChangeButtonToRegister_OnClick(object sender, RoutedEventArgs e)
-       {
-           ButtonAuthenticate.Visibility = Visibility.Collapsed;
-           ButtonRegister.Visibility = Visibility.Visible;
-       
-           LabelChangeAuthenticateButton.Visibility = Visibility.Collapsed;
-           LabelChangeRegisterButton.Visibility = Visibility.Visible;
-       }
-       
-       private void LinkChangeButtonToAuthenticate_OnClick(object sender, RoutedEventArgs e)
-       {
-           ChangeLinksAndButtonsToAuthenticate();
-       }
-       
-       public void ChangeLinksAndButtonsToAuthenticate()
-       {
-           ButtonAuthenticate.Visibility = Visibility.Visible;
-           ButtonRegister.Visibility = Visibility.Collapsed;
-       
-           LabelChangeAuthenticateButton.Visibility = Visibility.Visible;
-           LabelChangeRegisterButton.Visibility = Visibility.Collapsed;
-       }
+        public MainWindow()
+        {
+            InitializeComponent();
+            ViewModel = new MainWindowViewModel();
+
+            this.WhenActivated(disposableRegistration =>
+                {
+                    this.Bind(ViewModel,
+                            viewModel => viewModel.Username,
+                            view => view.TextBoxUsername.Text)
+                        .DisposeWith(disposableRegistration);
+
+                    this.Bind(ViewModel,
+                        viewModel => viewModel.LinkAuthenticateVisibility,
+                        view => view.LabelChangeRegisterButton.Visibility);
+
+                    this.Bind(ViewModel,
+                        viewModel => viewModel.LinkRegisterVisibility,
+                        view => view.LabelChangeAuthenticateButton.Visibility);
+
+                    this.Bind(ViewModel,
+                        viewModel => viewModel.ButtonAuthenticateVisibility,
+                        view => view.ButtonAuthenticate.Visibility);
+                    
+                    this.Bind(ViewModel,
+                        viewModel => viewModel.ButtonRegisterVisibility,
+                        view => view.ButtonRegister.Visibility);
+
+                    this.BindCommand(ViewModel,
+                        viewModel => viewModel.RegisterCommand,
+                        view => view.ButtonRegister);
+
+                    this.BindCommand(ViewModel,
+                        viewModel => viewModel.AuthenticateCommand,
+                        view => view.ButtonAuthenticate);
+
+                    this.BindCommand(ViewModel,
+                        viewModel => viewModel.ChangingButtonToAuthenticationCommand,
+                        view => view.LabelChangeRegisterButton);
+
+                    this.BindCommand(ViewModel,
+                        viewModel => viewModel.ChangingButtonToRegistrationCommand,
+                        view => view.LabelChangeAuthenticateButton);
+                }
+            );
+        }
     }
 }

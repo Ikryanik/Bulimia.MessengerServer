@@ -1,0 +1,18 @@
+﻿<reactiveUi:ReactiveWindow x:TypeArguments="viewModel:FirstViewModel" x:Class="Bulimia.MessengerClient.View.FirstWindow"
+                           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                           xmlns:local="clr-namespace:Bulimia.MessengerClient.View"
+                           xmlns:reactiveUi="http://reactiveui.net"
+                           xmlns:viewModel="clr-namespace:Bulimia.MessengerClient.ViewModel"
+                           mc:Ignorable="d"
+                           Title="FirstWindow" Height="450" Width="800">
+    <Grid>
+        <reactiveUi:RoutedViewHost 
+            Grid.Row="0" 
+            x:Name="RoutedViewHost"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch" />
+    </Grid>
+</reactiveUi:ReactiveWindow>

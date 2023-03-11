@@ -1,13 +1,15 @@
-﻿<Window
+﻿<reactiveUi:ReactiveUserControl
     x:Class="Bulimia.MessengerClient.View.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Bulimia.MessengerClient.View"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="MainWindow"
+    xmlns:reactiveUi="http://reactiveui.net"
+    xmlns:reactivedemo="clr-namespace:Bulimia.MessengerClient.ViewModel"
     Width="443"
     Height="249"
+    x:TypeArguments="reactivedemo:MainWindowViewModel"
     mc:Ignorable="d">
     <Grid
         Margin="5"
@@ -26,8 +28,7 @@
         <TextBox
             x:Name="TextBoxUsername"
             Grid.Column="1"
-            Width="120"
-            Text="{Binding Username}"/>
+            Width="120" />
         <Button
             x:Name="ButtonAuthenticate"
             Grid.Row="1"
@@ -41,23 +42,20 @@
             Grid.ColumnSpan="2"
             Width="120"
             Margin="3"
-            Command="{Binding RegisterCommand}"
-            Content="Зарегестрироваться"
+            Content="Зарегистрироваться"
             Visibility="Collapsed" />
-        <Label
+        <Button
             x:Name="LabelChangeAuthenticateButton"
             Grid.Row="2"
             Grid.ColumnSpan="2"
-            HorizontalAlignment="Center">
-            <Hyperlink Click="LinkChangeButtonToRegister_OnClick">Зарегистрироваться</Hyperlink>
-        </Label>
-        <Label
+            HorizontalAlignment="Center">Зарегистрироваться
+        </Button>
+        <Button
             x:Name="LabelChangeRegisterButton"
             Grid.Row="2"
             Grid.ColumnSpan="2"
             HorizontalAlignment="Center"
-            Visibility="Collapsed">
-            <Hyperlink Click="LinkChangeButtonToAuthenticate_OnClick">Войти</Hyperlink>
-        </Label>
+            Visibility="Collapsed">Войти
+        </Button>
     </Grid>
-</Window>
+</reactiveUi:ReactiveUserControl>
