@@ -27,7 +27,7 @@ namespace Bulimia.MessengerClient.DAL.Repositories
 
         public async Task<List<Chat>> GetChatsUpdates(int id)
         {
-            var response = await BaseRepository.Client.GetAsync(Api.GetUpdatesInChats + $"?id={id}");
+            var response = await BaseRepository.Client.PostAsync(Api.GetUpdatesInChats + $"?id={id}", null);
 
             var result = await GetUserChatsFromResponse(response);
 

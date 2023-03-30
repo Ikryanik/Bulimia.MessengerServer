@@ -27,7 +27,7 @@ public class MessagesController
         return _chatService.GetUpdatesInMessages(request);
     }
     
-    [HttpGet(Name = "GetUpdatesInChats")]
+    [HttpPost(Name = "GetUpdatesInChats")]
     public Task<List<Chat>> GetUpdatesInChats(int id)
     {
         return _chatService.GetUpdatesInChats(id);
