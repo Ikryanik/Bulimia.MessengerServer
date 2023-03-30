@@ -1,4 +1,5 @@
-﻿using System.Reactive.Disposables;
+﻿using System;
+using System.Reactive.Disposables;
 using System.Windows;
 using Bulimia.MessengerClient.BLL;
 using Bulimia.MessengerClient.ViewModel;
@@ -16,44 +17,52 @@ namespace Bulimia.MessengerClient.View
             InitializeComponent();
             ViewModel = new MainWindowViewModel();
 
-            this.WhenActivated(disposableRegistration =>
+            this.WhenActivated(disposables =>
                 {
                     this.Bind(ViewModel,
                             viewModel => viewModel.Username,
                             view => view.TextBoxUsername.Text)
-                        .DisposeWith(disposableRegistration);
+                        .DisposeWith(disposables);
 
                     this.Bind(ViewModel,
                         viewModel => viewModel.LinkAuthenticateVisibility,
-                        view => view.LabelChangeRegisterButton.Visibility);
+                        view => view.LabelChangeRegisterButton.Visibility)
+                        .DisposeWith(disposables);
 
                     this.Bind(ViewModel,
                         viewModel => viewModel.LinkRegisterVisibility,
-                        view => view.LabelChangeAuthenticateButton.Visibility);
+                        view => view.LabelChangeAuthenticateButton.Visibility)
+                        .DisposeWith(disposables);
 
                     this.Bind(ViewModel,
                         viewModel => viewModel.ButtonAuthenticateVisibility,
-                        view => view.ButtonAuthenticate.Visibility);
+                        view => view.ButtonAuthenticate.Visibility)
+                        .DisposeWith(disposables);
                     
                     this.Bind(ViewModel,
                         viewModel => viewModel.ButtonRegisterVisibility,
-                        view => view.ButtonRegister.Visibility);
+                        view => view.ButtonRegister.Visibility)
+                        .DisposeWith(disposables);
 
                     this.BindCommand(ViewModel,
                         viewModel => viewModel.RegisterCommand,
-                        view => view.ButtonRegister);
+                        view => view.ButtonRegister)
+                        .DisposeWith(disposables);
 
                     this.BindCommand(ViewModel,
                         viewModel => viewModel.AuthenticateCommand,
-                        view => view.ButtonAuthenticate);
+                        view => view.ButtonAuthenticate)
+                        .DisposeWith(disposables);
 
                     this.BindCommand(ViewModel,
                         viewModel => viewModel.ChangingButtonToAuthenticationCommand,
-                        view => view.LabelChangeRegisterButton);
+                        view => view.LabelChangeRegisterButton)
+                        .DisposeWith(disposables);
 
                     this.BindCommand(ViewModel,
                         viewModel => viewModel.ChangingButtonToRegistrationCommand,
-                        view => view.LabelChangeAuthenticateButton);
+                        view => view.LabelChangeAuthenticateButton)
+                        .DisposeWith(disposables);
                 }
             );
         }

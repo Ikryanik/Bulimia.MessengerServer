@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using Bulimia.MessengerClient.BLL;
-using Bulimia.MessengerClient.Common;
+using Bulimia.MessengerClient.Messages;
 using Bulimia.MessengerClient.Model;
 using Bulimia.MessengerClient.View;
 using ReactiveUI;
@@ -17,7 +17,7 @@ namespace Bulimia.MessengerClient.ViewModel
     public class MainWindowViewModel : ReactiveObject, IRoutableViewModel
     {
         private readonly UserManagerClient _userManagerClient;
-
+        private readonly IMessageBoxCreator _messageBoxCreator;
         [Reactive]
         public string Username { get; set; }
         [Reactive]
@@ -50,7 +50,8 @@ namespace Bulimia.MessengerClient.ViewModel
             AuthenticateCommand = ReactiveCommand.CreateFromTask(Authenticate, canExecute);
             ChangingButtonToRegistrationCommand = ReactiveCommand.Create(ChangeButtonToRegistration);
             ChangingButtonToAuthenticationCommand = ReactiveCommand.Create(ChangeButtonToAuthentication);
-            MessageBus.Current.Listen<MessageBoxMessage>().Subscribe(x => PrintMessage(x.Text));
+
+            _messageBoxCreator = Locator.Current.GetService<IMessageBoxCreator>();
             
             HostScreen = Locator.Current.GetService<IScreen>();
         }
@@ -63,14 +64,16 @@ namespace Bulimia.MessengerClient.ViewModel
 
             if (result == null)
             {
-                MessageBox.Show("Неверное имя");
+                _messageBoxCreator.CreateMessageBox("Неверное имя");
                 return;
             }
 
             var chatsViewModel = new UserChatsViewModel(result.Id);
             await chatsViewModel.Init();
-
+            
             HostScreen.Router.Navigate.Execute(chatsViewModel);
+            MessageBus.Current.SendMessage(new LogOutButtonVisibilityMessage(true));
+            Username = string.Empty;
         }
 
         private async Task Register()
@@ -79,7 +82,7 @@ namespace Bulimia.MessengerClient.ViewModel
 
             if (string.IsNullOrWhiteSpace(username))
             {
-                MessageBox.Show("Имя не может быть пустым");
+                _messageBoxCreator.CreateMessageBox("Имя не может быть пустым");
                 return;
             }
 
@@ -87,17 +90,12 @@ namespace Bulimia.MessengerClient.ViewModel
 
             if (result == null)
             {
-                MessageBox.Show("Такое имя уже существует");
+                _messageBoxCreator.CreateMessageBox("Такое имя уже существует");
                 return;
             }
 
-            MessageBox.Show("Вы успешно зарегистрированы!");
+            _messageBoxCreator.CreateMessageBox("Вы успешно зарегистрированы!");
             Username = string.Empty;
-        }
-
-        private void PrintMessage(string text)
-        {
-            MessageBox.Show(text);
         }
 
         private void ChangeButtonToRegistration()
@@ -118,14 +116,5 @@ namespace Bulimia.MessengerClient.ViewModel
             LinkRegisterVisibility = Visibility.Visible;
         }
     }
-
-    public class MessageBoxMessage
-    {
-        public string Text { get; set; }
-
-        public MessageBoxMessage(string text)
-        {
-            Text = text;
-        }
-    }
+    
 }

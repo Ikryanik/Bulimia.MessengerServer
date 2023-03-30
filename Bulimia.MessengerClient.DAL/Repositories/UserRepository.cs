@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,6 +39,27 @@ namespace Bulimia.MessengerClient.DAL.Repositories
             var userDto = JsonConvert.DeserializeObject<UserDto>(content);
 
             return userDto;
+        }
+
+        public async Task<List<UserModel>> SearchUsers()
+        {
+            try
+            {
+                var response = await BaseRepository.Client.GetAsync(Api.SearchUsers);
+                var content = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                var users = JsonConvert.DeserializeObject<List<UserModel>>(content);
+
+                return users;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
         }
     }
 }

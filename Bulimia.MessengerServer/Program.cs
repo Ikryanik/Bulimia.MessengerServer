@@ -11,13 +11,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<MessengerContext>();
-builder.Services.AddSingleton<UserRepository>();
-builder.Services.AddSingleton<UsersService>();
-builder.Services.AddSingleton<MessageRepository>();
-builder.Services.AddSingleton<ChatService>();
-builder.Services.AddSingleton<UserManagerService>();
-builder.Services.AddSingleton<UserRepository>();
+builder.Services.AddScoped<MessengerContext>();
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<UsersService>();
+builder.Services.AddScoped<MessageRepository>();
+builder.Services.AddScoped<ChatService>();
+builder.Services.AddScoped<UserManagerService>();
+builder.Services.AddScoped<UserRepository>();
 
 var app = builder.Build();
 
@@ -28,7 +28,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

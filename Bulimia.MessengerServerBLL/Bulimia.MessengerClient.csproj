@@ -87,8 +87,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Common\RelayCommand.cs" />
-    <Compile Include="Model\ChatModel.cs" />
+    <Compile Include="Messages\DisposeMessage.cs" />
+    <Compile Include="Messages\IMessageBoxCreator.cs" />
+    <Compile Include="Messages\LogOutButtonVisibilityMessage.cs" />
+    <Compile Include="Messages\MessageBoxCreator.cs" />
     <Compile Include="Model\UserModel.cs" />
     <Compile Include="ViewModel\FirstViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
@@ -99,10 +101,6 @@
     <Compile Include="View\UserChatsWindow.xaml.cs">
       <DependentUpon>UserChatsWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="View\ChatWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="View\FirstWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -114,9 +112,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="View\ChatWindow.xaml.cs">
-      <DependentUpon>ChatWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -165,6 +160,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Icons\logout.png" />
+    <Content Include="Sounds\noti.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.6.6.4\build\Fody.targets" Condition="Exists('..\packages\Fody.6.6.4\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

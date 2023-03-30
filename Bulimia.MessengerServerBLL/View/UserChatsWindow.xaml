@@ -5,14 +5,47 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Bulimia.MessengerClient.View"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:messengerClient="clr-namespace:Bulimia.MessengerClient"
     xmlns:reactiveUi="http://reactiveui.net"
     xmlns:viewModel="clr-namespace:Bulimia.MessengerClient.ViewModel"
-    Width="800"
-    Height="450"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
     x:TypeArguments="viewModel:UserChatsViewModel"
     mc:Ignorable="d">
     <Grid>
-        <ListView x:Name="ListViewLastMessages" SelectionMode="Single">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <TextBlock
+            x:Name="TextBlockZeroChats"
+            Grid.Row="2"
+            Width="180"
+            Height="18"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Text="Вы еще ни с кем не общались"
+            TextAlignment="Center" />
+        <ComboBox
+            x:Name="ComboBoxUsers"
+            DisplayMemberPath="Username"
+            IsEditable="True"
+            IsTextSearchEnabled="False"
+            StaysOpenOnEdit="False" />
+        <Label
+            Grid.Row="1"
+            Content="Диалоги"
+            FontWeight="SemiBold" />
+        <ListView
+            x:Name="ListViewLastMessages"
+            Grid.Row="2"
+            Grid.Column="0"
+            SelectionMode="Single">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -34,31 +67,154 @@
                             Grid.Column="1"
                             Margin="5,0,0,0"
                             FontWeight="Light"
-                            Text="{Binding Time, StringFormat=hh:mm}" />
+                            Text="{Binding DateTimeOfLastMessage, StringFormat=HH:mm}" />
+                        <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            FontStyle="Italic"
+                            FontWeight="DemiBold"
+                            Text="{Binding SenderUsernameOfMessage, StringFormat={}{0}:}" />
                         <TextBlock
                             Name="TextBlockMessage"
                             Grid.Row="1"
-                            Grid.Column="0"
-                            Grid.ColumnSpan="2"
+                            Grid.Column="1"
+                            Margin="3,0,0,0"
                             Text="{Binding LastMessage}" />
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
         <ProgressBar
-            x:Name="ProgressBar"
+            x:Name="ChatProgressBar"
+            Grid.Row="2"
             Width="100"
             Height="10"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             IsIndeterminate="True" />
-        <TextBlock
-            x:Name="TextBlockZeroChats"
-            Width="180"
-            Height="18"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Text="Вы еще ни с кем не общались"
-            TextAlignment="Center" />
+
+        <Grid
+            x:Name="MessagesGrid"
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            Grid.Column="1"
+            Margin="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="54" />
+            </Grid.RowDefinitions>
+            <TextBlock
+                x:Name="CompanionUsernameHeader"
+                Margin="1"
+                FontSize="13"
+                FontWeight="Bold" />
+            <Border Grid.Row="1" Grid.ColumnSpan="2">
+                <ListView x:Name="ListViewMessages" SelectionMode="Single">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    x:Name="LabelName"
+                                    FontStyle="Italic"
+                                    FontWeight="SemiBold"
+                                    Text="{Binding SenderUsername}" />
+                                <TextBlock
+                                    x:Name="TextBlockTime"
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Margin="3,0,0,0"
+                                    FontWeight="Light"
+                                    Text="{Binding DateTimeOfDelivery, StringFormat=dd.MM HH:mm:ss}" />
+                                <TextBlock
+                                    x:Name="TextBlockText"
+                                    Grid.Row="1"
+                                    Grid.ColumnSpan="2"
+                                    Text="{Binding Text}"
+                                    TextWrapping="Wrap" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Border>
+            <Grid Grid.Row="2" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="26" />
+                </Grid.ColumnDefinitions>
+                <TextBox
+                    x:Name="TextBoxMessage"
+                    Grid.RowSpan="2"
+                    TextWrapping="Wrap" />
+                <Button
+                    x:Name="CreateMessageButton"
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Width="26"
+                    Content="+" />
+                <Button
+                    x:Name="CancelUpdateButton"
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Width="26"
+                    Height="27"
+                    Content="x" />
+            </Grid>
+            <StackPanel
+                x:Name="StackPanelZeroMessages"
+                Grid.Row="1"
+                Grid.Column="0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Orientation="Horizontal">
+                <TextBlock Text="У вас нет сообщений с этим пользователем" />
+                <Button
+                    x:Name="RefreshButton"
+                    Margin="5,-2,0,0"
+                    Content="Еще раз" />
+            </StackPanel>
+            <ProgressBar
+                x:Name="MessagesProgressBar"
+                Grid.Row="1"
+                Grid.Column="0"
+                Width="100"
+                Height="10"
+                IsIndeterminate="True" />
+            <StackPanel
+                x:Name="PanelItemManipulating"
+                Grid.Row="0"
+                Grid.ColumnSpan="2"
+                Height="20"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Orientation="Horizontal">
+                <Button
+                    x:Name="DeleteMessageButton"
+                    Margin="0,0,5,0"
+                    Content="✕" />
+                <Button
+                    x:Name="UpdateMessageButton"
+                    Margin="5,0,0,0"
+                    Content="✎" />
+            </StackPanel>
+        </Grid>
+
     </Grid>
 </reactiveUi:ReactiveUserControl>

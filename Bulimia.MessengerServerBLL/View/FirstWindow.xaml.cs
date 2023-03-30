@@ -1,18 +1,5 @@
 ﻿using ReactiveUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Disposables;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Bulimia.MessengerClient.ViewModel;
 
 namespace Bulimia.MessengerClient.View
@@ -28,10 +15,33 @@ namespace Bulimia.MessengerClient.View
             ViewModel = new FirstViewModel();
             this.WhenActivated(disposables =>
             {
-                // Bind the view model router to RoutedViewHost.Router property.
-                this.OneWayBind(ViewModel, x => x.Router, x => x.RoutedViewHost.Router)
+                this.OneWayBind(ViewModel,
+                        viewModel => viewModel.Router,
+                        view => view.RoutedViewHost.Router)
                     .DisposeWith(disposables);
+
+                this.BindCommand(ViewModel,
+                    viewModel => viewModel.LogOutCommand,
+                    view => view.ButtonLogOut)
+                    .DisposeWith(disposables);
+
+                this.Bind(ViewModel,
+                    viewModel => viewModel.LogOutButtonVisibility,
+                    view => view.ButtonLogOut.Visibility)
+                    .DisposeWith(disposables);
+
+                this.Bind(ViewModel,
+                    viewModel => viewModel.TextBlockUsernameVisibility,
+                    view => view.TextBlockUsername.Visibility)
+                    .DisposeWith(disposables);
+
+               // this.Bind(ViewModel,
+               //     viewModel => viewModel.,
+               //     view => view.TextBlockUsername.Text);
             });
         }
+
     }
+
+
 }

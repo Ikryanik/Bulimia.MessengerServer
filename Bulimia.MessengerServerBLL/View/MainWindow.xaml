@@ -7,8 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:reactiveUi="http://reactiveui.net"
     xmlns:reactivedemo="clr-namespace:Bulimia.MessengerClient.ViewModel"
-    Width="443"
-    Height="249"
+    d:DesignWidth="443"
+    d:DesignHeight="249"
     x:TypeArguments="reactivedemo:MainWindowViewModel"
     mc:Ignorable="d">
     <Grid

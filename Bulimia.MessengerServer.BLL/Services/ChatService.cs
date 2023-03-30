@@ -79,9 +79,9 @@ public class ChatService
             throw new Exception(result);
     }
 
-    public Task<List<MessageRecord>> GetUserChat(UserChatRequest request)
+    public async Task<List<MessageRecord>> GetUserChat(UserChatRequest request)
     {
-        return _messageRepository.GetUserChat(request);
+        return await _messageRepository.GetUserChat(request);
     }
 
     public async Task<List<Chat>> GetChatsOfUser(int id)
@@ -103,6 +103,37 @@ public class ChatService
                 chatList.Add(chat);
         }
 
-        return chatList;
+        var chats = chatList.OrderByDescending(x=>x.DateTimeOfLastMessage).ToList();
+        return chats;
+    }
+
+    public async Task<List<Chat>> GetUpdatesInChats(int id)
+    {
+        var hasChanges = false;
+
+        while (!hasChanges)
+        {
+            hasChanges = _messageRepository.GetUpdatesInChats(id);
+            await Task.Delay(200);
+        }
+
+        var result =  await GetChatsOfUser(id);
+        
+        return result; 
+    }
+
+    public async Task<List<MessageRecord>> GetUpdatesInMessages(UserChatRequest request)
+    {
+        var hasChanges = false;
+
+        while (!hasChanges)
+        {
+            hasChanges = _messageRepository.GetUpdatesInMessages(request);
+            await Task.Delay(200);
+        }
+
+        var result = await GetUserChat(request);
+
+        return result;
     }
 }

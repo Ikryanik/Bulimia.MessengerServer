@@ -8,6 +8,8 @@ namespace Bulimia.MessengerServer.DAL.Repositories;
 public class MessageRepository
 {
     private readonly MessengerContext _context;
+    public static List<int> ChatsUpdatesList { get; set; } = new();
+    public static List<UpdateDetail> MessagesUpdatesList { get; set; } = new();
 
     public MessageRepository(MessengerContext context)
     {
@@ -26,7 +28,34 @@ public class MessageRepository
         var result = await _context.Messages.AddAsync(Map(messageModel));
         await _context.SaveChangesAsync();
 
+        AddUpdatesInUpdatesList(messageModel.SenderId, messageModel.ReceiverId);
+
         return result.Entity.Id;
+    }
+
+    public void AddUpdatesInUpdatesList(int senderId, int receiverId)
+    {
+        if (!ChatsUpdatesList.Contains(receiverId))
+        {
+            Console.WriteLine("список chatsupdates не содержит айди получателя");
+            ChatsUpdatesList.Add(receiverId);
+        }
+
+        if (!ChatsUpdatesList.Contains(senderId))
+        {
+            Console.WriteLine("список chatsupdates не содержит айди отправителя");
+            ChatsUpdatesList.Add(senderId);
+        }
+
+        if (!MessagesUpdatesList.Any(x => x.SenderId == senderId && x.ReceiverId == receiverId))
+        {
+            Console.WriteLine("в messageupdateslist нет сообщения с данным отправителем и получателем");
+            MessagesUpdatesList.Add(new UpdateDetail
+            {
+                ReceiverId = receiverId,
+                SenderId = senderId,
+            });
+        }
     }
 
     public async Task<int> DeleteMessage(int id)
@@ -37,6 +66,8 @@ public class MessageRepository
 
         _context.Messages.Remove(result);
         await _context.SaveChangesAsync();
+
+        AddUpdatesInUpdatesList(result.SenderId, result.ReceiverId);
 
         return 1;
     }
@@ -55,11 +86,13 @@ public class MessageRepository
         if (result == null) return 0;
 
         result.Id = messageModel.Id;
-        result.ReceiverId = messageModel.Id;
+        result.ReceiverId = messageModel.ReceiverId;
         result.SenderId = messageModel.SenderId;
         result.Text = messageModel.Text;
 
         await _context.SaveChangesAsync();
+
+        AddUpdatesInUpdatesList(result.SenderId, result.ReceiverId);
 
         return 1;
     }
@@ -79,38 +112,7 @@ public class MessageRepository
             ReceiverId = x.ReceiverId,
             SenderId = x.SenderId
         }
-        ).ToList();
-    }
-
-    private MessageModel MapMessage(Message message)
-    {
-        return new MessageModel
-        {
-            Id = message.Id,
-            ReceiverId = message.ReceiverId,
-            SenderId = message.SenderId,
-            Text = message.Text
-        };
-    }
-
-    private MessageDto Map(Message message)
-    {
-        return new MessageDto
-        {
-            Id = message.Id,
-            Text = message.Text,
-        };
-    }
-
-    private Message Map(MessageModel messageModel)
-    {
-        return new Message()
-        {
-            DateTimeDelivery = DateTime.Now,
-            ReceiverId = messageModel.ReceiverId,
-            SenderId = messageModel.SenderId,
-            Text = messageModel.Text
-        };
+        ).OrderByDescending(x => x.DateTimeOfDelivery).ToList();
     }
 
     public async Task<List<int>> GetChatsByUserId(int id)
@@ -147,5 +149,76 @@ public class MessageRepository
             SenderUsernameOfMessage = result.Sender.Username
         };
     }
+
+    public bool GetUpdatesInChats(int id)
+    {
+        try
+        {
+            var result = ChatsUpdatesList.Contains(id);
+
+            if (result)
+            {
+                Console.WriteLine("в ChatsUpdatesList есть этот айди");
+                ChatsUpdatesList?.Remove(id);
+            }
+
+            return result;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public bool GetUpdatesInMessages(UserChatRequest request)
+    {
+        try
+        {
+            var result = MessagesUpdatesList.FirstOrDefault(x =>
+                x.ReceiverId == request.SenderId && x.SenderId == request.ReceiverId
+                );
+
+            if (result == null) return false;
+            MessagesUpdatesList.Remove(result);
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private MessageModel MapMessage(Message message)
+    {
+        return new MessageModel
+        {
+            Id = message.Id,
+            ReceiverId = message.ReceiverId,
+            SenderId = message.SenderId,
+            Text = message.Text
+        };
+    }
+
+    private MessageDto Map(Message message)
+    {
+        return new MessageDto
+        {
+            Id = message.Id,
+            Text = message.Text,
+        };
+    }
+
+    private Message Map(MessageModel messageModel)
+    {
+        return new Message()
+        {
+            DateTimeDelivery = DateTime.Now,
+            ReceiverId = messageModel.ReceiverId,
+            SenderId = messageModel.SenderId,
+            Text = messageModel.Text
+        };
+    }
+
 }
 
