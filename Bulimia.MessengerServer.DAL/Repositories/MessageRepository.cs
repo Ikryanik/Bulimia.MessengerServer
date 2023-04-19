@@ -9,7 +9,7 @@ public class MessageRepository
 {
     private readonly MessengerContext _context;
     public static List<int> ChatsUpdatesList { get; set; } = new();
-    public static List<UpdateDetail> MessagesUpdatesList { get; set; } = new();
+    public static Dictionary<int, List<int>> UpdatesList { get; set; } = new();
 
     public MessageRepository(MessengerContext context)
     {
@@ -20,7 +20,7 @@ public class MessageRepository
     {
         var messages = await _context.Messages.ToListAsync();
 
-        return messages.Select(x => Map(x)).ToList();
+        return messages.Select(Map).ToList();
     }
 
     public async Task<int> CreateMessage(MessageModel messageModel)
@@ -35,27 +35,17 @@ public class MessageRepository
 
     public void AddUpdatesInUpdatesList(int senderId, int receiverId)
     {
-        if (!ChatsUpdatesList.Contains(receiverId))
+        if (!UpdatesList.ContainsKey(receiverId))
         {
-            Console.WriteLine("список chatsupdates не содержит айди получателя");
-            ChatsUpdatesList.Add(receiverId);
+            UpdatesList.TryAdd(receiverId, new List<int>());
         }
 
-        if (!ChatsUpdatesList.Contains(senderId))
+        if (UpdatesList[receiverId].Contains(senderId))
         {
-            Console.WriteLine("список chatsupdates не содержит айди отправителя");
-            ChatsUpdatesList.Add(senderId);
+            return;
         }
 
-        if (!MessagesUpdatesList.Any(x => x.SenderId == senderId && x.ReceiverId == receiverId))
-        {
-            Console.WriteLine("в messageupdateslist нет сообщения с данным отправителем и получателем");
-            MessagesUpdatesList.Add(new UpdateDetail
-            {
-                ReceiverId = receiverId,
-                SenderId = senderId,
-            });
-        }
+        UpdatesList[receiverId].Add(senderId);
     }
 
     public async Task<int> DeleteMessage(int id)
@@ -170,22 +160,23 @@ public class MessageRepository
         }
     }
 
-    public bool GetUpdatesInMessages(UserChatRequest request)
+    public List<int>? GetUpdatesInMessages(int id)
     {
         try
         {
-            var result = MessagesUpdatesList.FirstOrDefault(x =>
-                x.ReceiverId == request.SenderId && x.SenderId == request.ReceiverId
-                );
 
-            if (result == null) return false;
-            MessagesUpdatesList.Remove(result);
+            var result = UpdatesList.ContainsKey(id);
 
-            return true;
+            if (!result) return null;
+
+            var ids = UpdatesList[id];
+
+            UpdatesList.Remove(id);
+            return ids;
         }
         catch
         {
-            return false;
+            return null;
         }
     }
 

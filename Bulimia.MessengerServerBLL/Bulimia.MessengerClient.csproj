@@ -91,6 +91,9 @@
     <Compile Include="Messages\IMessageBoxCreator.cs" />
     <Compile Include="Messages\LogOutButtonVisibilityMessage.cs" />
     <Compile Include="Messages\MessageBoxCreator.cs" />
+    <Compile Include="Messages\UsernameChangingMessage.cs" />
+    <Compile Include="Model\ChatModel.cs" />
+    <Compile Include="Model\MessageModel.cs" />
     <Compile Include="Model\UserModel.cs" />
     <Compile Include="ViewModel\FirstViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />

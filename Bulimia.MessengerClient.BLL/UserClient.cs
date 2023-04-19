@@ -16,7 +16,12 @@ namespace Bulimia.MessengerClient.BLL
 
         public async Task<List<UserModel>> SearchUsers()
         {
-            return await _userRepository.SearchUsers();
+            return await ExecutionService.Execute(() => _userRepository.SearchUsers());
+        }
+
+        public async Task<string> GetUsernameById(int id)
+        {
+            return await _userRepository.GetUsernameById(id);
         }
     }
 }

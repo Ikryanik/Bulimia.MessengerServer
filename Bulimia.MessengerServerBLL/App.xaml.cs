@@ -10,6 +10,7 @@ using System.Windows;
 using Bulimia.MessengerClient.Messages;
 using Bulimia.MessengerClient.View;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
 namespace Bulimia.MessengerClient
 {
@@ -18,6 +19,7 @@ namespace Bulimia.MessengerClient
     /// </summary>
     public partial class App : Application
     {
+        public static string Username;
         public App()
         {
             Locator.CurrentMutable.RegisterViewsForViewModels(Assembly.GetCallingAssembly());

@@ -2,7 +2,7 @@
 
 namespace Bulimia.MessengerClient.Domain.Core
 {
-    public class MessageModel
+    public class MessageApiModel
     {
         public int Id { get; set; }
         public string Text { get; set; }

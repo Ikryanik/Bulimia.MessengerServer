@@ -35,9 +35,10 @@ namespace Bulimia.MessengerClient.View
                     view => view.TextBlockUsername.Visibility)
                     .DisposeWith(disposables);
 
-               // this.Bind(ViewModel,
-               //     viewModel => viewModel.,
-               //     view => view.TextBlockUsername.Text);
+                this.Bind(ViewModel,
+                    viewModel => viewModel.Greetings,
+                    view => view.TextBlockUsername.Text);
+
             });
         }
 

@@ -15,13 +15,57 @@ namespace Bulimia.MessengerClient.DAL.Repositories
 {
     public class MessageRepository
     {
-        private readonly UserRepository _userRepository = new UserRepository();
+        public async Task<List<int>> GetUpdates(int myId)
+        {
+            try
+            {
+                var response = await BaseRepository.Client.PostAsync($"{Api.GetUpdates}?id={myId}", null);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    return null;
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+
+                if (content == null)
+                {
+                    return null;
+                }
+
+                var result = JsonConvert.DeserializeObject<List<int>>(content);
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
+        }
 
         public async Task<List<Chat>> GetUserChats(int id)
         {
-            var response = await BaseRepository.Client.PostAsync(Api.GetChats + $"?id={id}", null);
+            var response = await BaseRepository.Client.PostAsync($"{Api.GetChats}?id={id}", null);
             var result = await GetUserChatsFromResponse(response);
             
+            return result;
+        }
+        public async Task<List<MessageDto>> GetMessageUpdates(int myId, int companionId)
+        {
+            var request = new UserChatRequest
+            {
+                ReceiverId = companionId,
+                SenderId = myId
+            };
+
+            var json = JsonConvert.SerializeObject(request);
+
+            var response = await BaseRepository.Client.PostAsync(Api.GetUpdatesInMessages,
+                new StringContent(json, Encoding.UTF8, "application/json"));
+
+            var result = await GetMessagesFromResponse(response, myId, companionId);
+
             return result;
         }
 
@@ -37,12 +81,16 @@ namespace Bulimia.MessengerClient.DAL.Repositories
         public async Task<List<Chat>> GetUserChatsFromResponse(HttpResponseMessage response)
         {
             if (!response.IsSuccessStatusCode)
+            {
                 return null;
+            }
 
             var content = await response.Content.ReadAsStringAsync();
 
             if (content == null)
+            {
                 return null;
+            }
 
             var chats = JsonConvert.DeserializeObject<List<Chat>>(content);
 
@@ -66,23 +114,6 @@ namespace Bulimia.MessengerClient.DAL.Repositories
             return result;
         }
 
-        public async Task<List<MessageDto>> GetMessageUpdates(int myId, int companionId)
-        {
-            var request = new UserChatRequest
-            {
-                ReceiverId = companionId,
-                SenderId = myId
-            };
-
-            var json = JsonConvert.SerializeObject(request);
-
-            var response = await BaseRepository.Client.PostAsync(Api.GetUpdatesInMessages,
-                new StringContent(json, Encoding.UTF8, "application/json"));
-
-            var result = await GetMessagesFromResponse(response, myId, companionId);
-
-            return result;
-        }
 
         public async Task<List<MessageDto>> GetMessagesFromResponse(HttpResponseMessage response, int myId, int companionId)
         {
@@ -100,7 +131,7 @@ namespace Bulimia.MessengerClient.DAL.Repositories
                 return null;
             }
 
-            var messageRecords = JsonConvert.DeserializeObject<List<MessageRecord>>(content);
+            var messageRecords = JsonConvert.DeserializeObject<List<Record>>(content);
 
             var companionResponse =
                 await BaseRepository.Client.PostAsync(Api.GetUsernameById + $"?id={companionId}", null);
@@ -128,9 +159,9 @@ namespace Bulimia.MessengerClient.DAL.Repositories
             return items.OrderBy(x => x.DateTimeOfDelivery).ToList();
         }
 
-        public async Task<int> CreateMessage(MessageModel message)
+        public async Task<int> CreateMessage(MessageApiModel messageApi)
         {
-            var json = JsonConvert.SerializeObject(message);
+            var json = JsonConvert.SerializeObject(messageApi);
 
             var response = await BaseRepository.Client.PostAsync(Api.CreateMessage,
                 new StringContent(json, Encoding.UTF8, "application/json"));
@@ -163,9 +194,9 @@ namespace Bulimia.MessengerClient.DAL.Repositories
             return JsonConvert.DeserializeObject<int>(content);
         }
 
-        public async Task<int> UpdateMessage(MessageModel message)
+        public async Task<int> UpdateMessage(MessageApiModel messageApi)
         {
-            var json = JsonConvert.SerializeObject(message);
+            var json = JsonConvert.SerializeObject(messageApi);
 
             var response = await BaseRepository.Client.PostAsync(Api.UpdateMessage,
                 new StringContent(json, Encoding.UTF8, "application/json"));
@@ -183,7 +214,7 @@ namespace Bulimia.MessengerClient.DAL.Repositories
             return messageId;
         }
 
-        private MessageDto Map(MessageRecord message, List<(int, string)> companions, int mainUserId)
+        private MessageDto Map(Record message, List<(int, string)> companions, int mainUserId)
         {
             return new MessageDto(mainUserId)
             {
@@ -195,6 +226,13 @@ namespace Bulimia.MessengerClient.DAL.Repositories
                 SenderUsername = companions.FirstOrDefault(x => x.Item1 == message.SenderId).Item2
             };
         }
-
+        private class Record
+        {
+            public int Id { get; set; }
+            public int SenderId { get; set; }
+            public int ReceiverId { get; set; }
+            public DateTime DateTimeOfDelivery { get; set; }
+            public string Text { get; set; }
+        }
     }
 }

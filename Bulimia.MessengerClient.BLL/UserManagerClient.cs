@@ -24,12 +24,9 @@ namespace Bulimia.MessengerClient.BLL
                 Username = username
             };
 
-            var result = await _userRepository.Authenticate(request);
+            var result = await ExecutionService.Execute(() => _userRepository.Authenticate(request));
 
-            if (result == null)
-                return null;
-            
-            return Map(result);
+            return result == null ? null : Map(result);
         }
 
         public async Task<RegisterResponce> Register(string username)
@@ -39,12 +36,9 @@ namespace Bulimia.MessengerClient.BLL
                 Username = username
             };
 
-            var result = await _userRepository.Register(request);
+            var result = await ExecutionService.Execute(() => _userRepository.Register(request));
 
-            if (result == null)
-                return null;
-
-            return MapResponce(result);
+            return result == null ? null : MapResponse(result);
         }
 
         public AuthenticateResponce Map(UserDto userDto)
@@ -55,7 +49,7 @@ namespace Bulimia.MessengerClient.BLL
             };
         }
 
-        public RegisterResponce MapResponce(UserDto userDto)
+        public RegisterResponce MapResponse(UserDto userDto)
         {
             return new RegisterResponce
             {
@@ -63,5 +57,5 @@ namespace Bulimia.MessengerClient.BLL
             };
         }
     }
-    
 }
+

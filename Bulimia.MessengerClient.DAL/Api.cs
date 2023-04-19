@@ -14,6 +14,7 @@ namespace Bulimia.MessengerClient.DAL
         public static string UpdateMessage = ServerName + "/Messages/UpdateMessage";
         public static string GetUpdatesInChats = ServerName + "/Messages/GetUpdatesInChats";
         public static string GetUpdatesInMessages = ServerName + "/Messages/GetUpdatesInMessages";
+        public static string GetUpdates = ServerName + "/Messages/GetUpdates";
         public static string SearchUsers = ServerName + "/Users/GetUsers";
     }
 }

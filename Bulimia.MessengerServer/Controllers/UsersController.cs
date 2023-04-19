@@ -22,7 +22,7 @@ namespace Bulimia.MessengerServer.Controllers
         }
 
         [HttpPost(Name = "GetUsernameById")]
-        public async Task<string> GetUsernameById(int id)
+        public async Task<string?> GetUsernameById(int id)
         {
             return await _usersService.GetUsernameById(id);
         }

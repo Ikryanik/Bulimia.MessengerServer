@@ -103,7 +103,7 @@ public class ChatService
                 chatList.Add(chat);
         }
 
-        var chats = chatList.OrderByDescending(x=>x.DateTimeOfLastMessage).ToList();
+        var chats = chatList.OrderByDescending(x => x.DateTimeOfLastMessage).ToList();
         return chats;
     }
 
@@ -117,9 +117,9 @@ public class ChatService
             await Task.Delay(200);
         }
 
-        var result =  await GetChatsOfUser(id);
-        
-        return result; 
+        var result = await GetChatsOfUser(id);
+
+        return result;
     }
 
     public async Task<List<MessageRecord>> GetUpdatesInMessages(UserChatRequest request)
@@ -128,11 +128,26 @@ public class ChatService
 
         while (!hasChanges)
         {
-            hasChanges = _messageRepository.GetUpdatesInMessages(request);
+         //   hasChanges = _messageRepository.GetUpdatesInMessages(request);
             await Task.Delay(200);
         }
 
         var result = await GetUserChat(request);
+
+        return result;
+    }
+
+    public async Task<List<int>?> GetUpdates(int id)
+    {
+        var hasMessagesChanges = false;
+        List<int>? result = null;
+
+        while (!hasMessagesChanges)
+        {
+            result = _messageRepository.GetUpdatesInMessages(id);
+            hasMessagesChanges = (result != null);
+            await Task.Delay(200);
+        }
 
         return result;
     }

@@ -18,11 +18,37 @@ namespace Bulimia.MessengerClient.BLL
             _messageRepository = new MessageRepository();
         }
 
+        public async Task<List<int>> GetUpdates(int myId)
+        {
+            try
+            {
+                return await ExecutionService.Execute(() => _messageRepository.GetUpdates(myId));
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
+        }
+
+        public async Task<List<MessageDto>> GetMessagesUpdates(int myId, int companionId)
+        {
+            try
+            {
+                return await ExecutionService.Execute(() => _messageRepository.GetMessageUpdates(myId, companionId));
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+                return null;
+            }
+        }
+
         public async Task<List<Chat>> GetChatsUpdates(int id)
         {
             try
             {
-                return await _messageRepository.GetChatsUpdates(id);
+                return await ExecutionService.Execute(() => _messageRepository.GetChatsUpdates(id));
             }
             catch
             {
@@ -32,40 +58,28 @@ namespace Bulimia.MessengerClient.BLL
 
         public async Task<List<Chat>> GetUserChats(int id)
         {
-            return await _messageRepository.GetUserChats(id);
+            return await ExecutionService.Execute(() => _messageRepository.GetUserChats(id));
         }
 
         public async Task<List<MessageDto>> GetMessages(int senderId, int receiverId)
         {
-            return await _messageRepository.GetMessages(senderId, receiverId);
+            return await ExecutionService.Execute(() => _messageRepository.GetMessages(senderId, receiverId));
         }
 
-        public async Task<int> CreateMessage(MessageModel message)
+        public async Task<int> CreateMessage(MessageApiModel messageApi)
         {
-            return await _messageRepository.CreateMessage(message);
+            return await ExecutionService.Execute(() => _messageRepository.CreateMessage(messageApi));
         }
 
-        public async Task<int> UpdateMessage(MessageModel message)
+        public async Task<int> UpdateMessage(MessageApiModel messageApi)
         {
-            return await _messageRepository.UpdateMessage(message);
+            return await ExecutionService.Execute(() => _messageRepository.UpdateMessage(messageApi));
         }
 
         public async Task<int> DeleteMessage(int id)
         {
-            return await _messageRepository.DeleteMessage(id);
+            return await ExecutionService.Execute(() => _messageRepository.DeleteMessage(id));
         }
 
-        public async Task<List<MessageDto>> GetMessagesUpdates(int myId, int companionId)
-        {
-            try
-            {
-                return await _messageRepository.GetMessageUpdates(myId, companionId);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.Message);
-                return null;
-            }
-        }
     }
 }

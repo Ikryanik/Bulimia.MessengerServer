@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChatClient.cs" />
+    <Compile Include="ExecutionService.cs" />
     <Compile Include="UserClient.cs" />
     <Compile Include="UserManagerClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -68,6 +68,8 @@ namespace Bulimia.MessengerClient.ViewModel
                 return;
             }
 
+            App.Username = username;
+
             var chatsViewModel = new UserChatsViewModel(result.Id);
             await chatsViewModel.Init();
             

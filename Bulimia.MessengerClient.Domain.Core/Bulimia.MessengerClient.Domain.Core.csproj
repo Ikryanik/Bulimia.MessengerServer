@@ -47,10 +47,10 @@
     <Compile Include="AuthenticateResponce.cs" />
     <Compile Include="Chat.cs" />
     <Compile Include="MessageDto.cs" />
-    <Compile Include="MessageModel.cs" />
-    <Compile Include="MessageRecord.cs" />
+    <Compile Include="MessageApiModel.cs" />
     <Compile Include="RegisterRequest.cs" />
     <Compile Include="RegisterResponce.cs" />
+    <Compile Include="UpdateInfo.cs" />
     <Compile Include="UserChatRequest.cs" />
     <Compile Include="UserDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

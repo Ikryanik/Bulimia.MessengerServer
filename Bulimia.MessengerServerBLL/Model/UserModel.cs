@@ -1,17 +1,14 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
 namespace Bulimia.MessengerClient.Model
 {
     public class UserModel : ReactiveObject
     {
-        private string _username;
-        public string Username
-        {
-            get => _username;
-            set => this.RaiseAndSetIfChanged(ref _username, value);
-        }
+        [Reactive]
+        public string Username { get; set; }
         
         
     }

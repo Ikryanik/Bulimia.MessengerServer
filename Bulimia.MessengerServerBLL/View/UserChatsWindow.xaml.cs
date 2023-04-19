@@ -49,27 +49,37 @@ namespace Bulimia.MessengerClient.View
                 
                 this.Bind(ViewModel,
                     viewModel => viewModel.ChatProgressBarVisibility,
-                    view => view.ChatProgressBar.Visibility)
+                    view => view.ChatProgressBar.Visibility,
+                    ViewModelToViewConverterFunc,
+                    ViewToViewModelConverterFunc)
                     .DisposeWith(disposables);
 
                 this.Bind(ViewModel,
                     viewModel => viewModel.TextBlockZeroChatsVisibility,
-                    view => view.TextBlockZeroChats.Visibility)
+                    view => view.TextBlockZeroChats.Visibility,
+                    ViewModelToViewConverterFunc,
+                    ViewToViewModelConverterFunc)
                     .DisposeWith(disposables);
                 
                 this.Bind(ViewModel,
                     viewModel => viewModel.ListViewLastMessagesVisibility,
-                    view => view.ListViewLastMessages.Visibility)
+                    view => view.ListViewLastMessages.Visibility,
+                    ViewModelToViewConverterFunc,
+                    ViewToViewModelConverterFunc)
                     .DisposeWith(disposables);
                 
                 this.Bind(ViewModel,
                     viewModel => viewModel.MessagesGridVisibility,
-                    view => view.MessagesGrid.Visibility)
+                    view => view.MessagesGrid.Visibility,
+                    ViewModelToViewConverterFunc,
+                    ViewToViewModelConverterFunc)
                     .DisposeWith(disposables);
                 
                 this.Bind(ViewModel,
                     viewModel => viewModel.ListViewMessagesVisibility,
-                    view => view.ListViewMessages.Visibility)
+                    view => view.ListViewMessages.Visibility,
+                    ViewModelToViewConverterFunc,
+                    ViewToViewModelConverterFunc)
                     .DisposeWith(disposables);
                 
                 this.OneWayBind(ViewModel,
@@ -94,22 +104,30 @@ namespace Bulimia.MessengerClient.View
                 
                 this.Bind(ViewModel,
                     viewModel => viewModel.StackPanelZeroMessagesVisibility,
-                    view => view.StackPanelZeroMessages.Visibility)
+                    view => view.StackPanelZeroMessages.Visibility,
+                    ViewModelToViewConverterFunc,
+                    ViewToViewModelConverterFunc)
                     .DisposeWith(disposables);
                 
                 this.Bind(ViewModel,
                     viewModel => viewModel.MessagesProgressBarVisibility,
-                    view => view.MessagesProgressBar.Visibility)
+                    view => view.MessagesProgressBar.Visibility,
+                    ViewModelToViewConverterFunc,
+                    ViewToViewModelConverterFunc)
                     .DisposeWith(disposables);
                 
                 this.Bind(ViewModel,
                     viewModel => viewModel.ManipulatingPanelVisibility,
-                    view => view.PanelItemManipulating.Visibility)
+                    view => view.PanelItemManipulating.Visibility,
+                    ViewModelToViewConverterFunc,
+                    ViewToViewModelConverterFunc)
                     .DisposeWith(disposables);
                 
                 this.Bind(ViewModel,
                     viewModel => viewModel.CancelButtonVisibility,
-                    view => view.CancelUpdateButton.Visibility)
+                    view => view.CancelUpdateButton.Visibility,
+                    ViewModelToViewConverterFunc,
+                    ViewToViewModelConverterFunc)
                     .DisposeWith(disposables);
                 
                 this.BindCommand(ViewModel,
@@ -145,9 +163,17 @@ namespace Bulimia.MessengerClient.View
                     }
                 });
             });
+
+        }
+        private Visibility ViewModelToViewConverterFunc(bool value)
+        {
+            return value ? Visibility.Visible : Visibility.Collapsed;
         }
 
-
+        private bool ViewToViewModelConverterFunc(Visibility visibility)
+        {
+            return visibility == Visibility.Visible;
+        }
     }
 
 

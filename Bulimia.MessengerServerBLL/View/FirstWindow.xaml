@@ -23,8 +23,7 @@
             x:Name="TextBlockUsername"
             Margin="3"
             FontSize="14"
-            FontWeight="DemiBold"
-            Text="{Binding Username, StringFormat={}{0}}" />
+            FontWeight="DemiBold"/>
         <Button
             x:Name="ButtonLogOut"
             Width="100"

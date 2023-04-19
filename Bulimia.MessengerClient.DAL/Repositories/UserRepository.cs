@@ -61,5 +61,22 @@ namespace Bulimia.MessengerClient.DAL.Repositories
                 return null;
             }
         }
+
+        public async Task<string> GetUsernameById(int id)
+        {
+            try
+            {
+                var response = await BaseRepository.Client.PostAsync(Api.GetUsernameById + $"?id={id}", null);
+                if (!response.IsSuccessStatusCode) return null;
+                var content = await response.Content.ReadAsStringAsync();
+
+                return content;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
+        }
     }
 }

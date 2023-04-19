@@ -5,6 +5,7 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Splat;
 using System;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace Bulimia.MessengerClient.ViewModel
 {
@@ -13,11 +14,16 @@ namespace Bulimia.MessengerClient.ViewModel
         private readonly IMessageBoxCreator _messageBoxCreator;
         public RoutingState Router { get; }
         public ReactiveCommand<Unit, Unit> LogOutCommand { get; set; }
+        [Reactive]
+        private string Username { get; set; }
+        [Reactive]
+        public string Greetings { get; set; }
 
         [Reactive]
-        public Visibility LogOutButtonVisibility { get; set; } = Visibility.Collapsed;
-        [Reactive]
         public Visibility TextBlockUsernameVisibility { get; set; } = Visibility.Collapsed;
+        [Reactive]
+        public Visibility LogOutButtonVisibility { get; set; } = Visibility.Collapsed;
+
 
         public FirstViewModel()
         {
@@ -28,6 +34,13 @@ namespace Bulimia.MessengerClient.ViewModel
             MessageBus.Current.Listen<LogOutButtonVisibilityMessage>().Subscribe(x =>
             {
                 LogOutButtonVisibility = x.IsVisible ? Visibility.Visible : Visibility.Collapsed;
+            });
+
+            MessageBus.Current.Listen<UsernameChangingMessage>().Subscribe(x =>
+            {
+                Username = x.Username;
+                TextBlockUsernameVisibility = x.UsernameVisibility ? Visibility.Visible : Visibility.Collapsed;
+                Greetings = !string.IsNullOrEmpty(Username) ? $"Добро пожаловать, {Username}" : null;
             });
 
             Locator.CurrentMutable.Register<IScreen>(() => this);
@@ -47,6 +60,9 @@ namespace Bulimia.MessengerClient.ViewModel
             LogOutButtonVisibility = Visibility.Collapsed;
 
             MessageBus.Current.SendMessage(new DisposeMessage());
+            MessageBus.Current.SendMessage(new UsernameChangingMessage(null));
         }
     }
+
+
 }
