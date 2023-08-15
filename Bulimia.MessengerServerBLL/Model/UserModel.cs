@@ -7,9 +7,6 @@ namespace Bulimia.MessengerClient.Model
 {
     public class UserModel : ReactiveObject
     {
-        [Reactive]
-        public string Username { get; set; }
-        
-        
+        [Reactive] public string Username { get; set; }
     }
 }

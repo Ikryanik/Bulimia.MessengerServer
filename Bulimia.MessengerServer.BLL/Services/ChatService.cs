@@ -38,9 +38,53 @@ public class ChatService
         return await _messageRepository.UpdateMessage(messageModel);
     }
 
+    public async Task<List<MessageRecord>> GetUserChat(UserChatRequest request)
+    {
+        return await _messageRepository.GetUserChat(request);
+    }
+
+    public async Task<List<Chat>> GetChatsOfUser(int id)
+    {
+        var user = await _userRepository.GetUserById(id);
+
+        if (user == null)
+            throw new Exception("Пользователя не существует");
+
+        var result = await _messageRepository.GetChatsByUserId(id);
+
+        var chatList = new List<Chat>();
+
+        foreach (var ids in result)
+        {
+            var chat = await _messageRepository.GetChat(id, ids);
+
+            if (chat != null)
+                chatList.Add(chat);
+        }
+
+        var chats = chatList.OrderByDescending(x => x.DateTimeOfLastMessage).ToList();
+        return chats;
+    }
+
+    public async Task<List<int>?> GetUpdates(int id)
+    {
+        var hasMessagesChanges = false;
+        List<int>? result = null;
+
+        while (!hasMessagesChanges)
+        {
+            result = _messageRepository.GetUpdatesInMessages(id);
+            hasMessagesChanges = (result != null);
+            await Task.Delay(200);
+        }
+
+        return result;
+    }
+    
     private async Task Validate(MessageModel messageModel)
     {
         var result = string.Empty;
+
         var receiver = await _userRepository.GetUserById(messageModel.ReceiverId);
 
         if (receiver == null)
@@ -79,34 +123,6 @@ public class ChatService
             throw new Exception(result);
     }
 
-    public async Task<List<MessageRecord>> GetUserChat(UserChatRequest request)
-    {
-        return await _messageRepository.GetUserChat(request);
-    }
-
-    public async Task<List<Chat>> GetChatsOfUser(int id)
-    {
-        var user = await _userRepository.GetUserById(id);
-
-        if (user == null)
-            throw new Exception("Пользователя не существует");
-
-        var result = await _messageRepository.GetChatsByUserId(id);
-
-        var chatList = new List<Chat>();
-
-        foreach (var ids in result)
-        {
-            var chat = await _messageRepository.GetChat(id, ids);
-
-            if (chat != null)
-                chatList.Add(chat);
-        }
-
-        var chats = chatList.OrderByDescending(x => x.DateTimeOfLastMessage).ToList();
-        return chats;
-    }
-
     public async Task<List<Chat>> GetUpdatesInChats(int id)
     {
         var hasChanges = false;
@@ -128,7 +144,7 @@ public class ChatService
 
         while (!hasChanges)
         {
-         //   hasChanges = _messageRepository.GetUpdatesInMessages(request);
+            //   hasChanges = _messageRepository.GetUpdatesInMessages(request);
             await Task.Delay(200);
         }
 
@@ -137,18 +153,4 @@ public class ChatService
         return result;
     }
 
-    public async Task<List<int>?> GetUpdates(int id)
-    {
-        var hasMessagesChanges = false;
-        List<int>? result = null;
-
-        while (!hasMessagesChanges)
-        {
-            result = _messageRepository.GetUpdatesInMessages(id);
-            hasMessagesChanges = (result != null);
-            await Task.Delay(200);
-        }
-
-        return result;
-    }
 }

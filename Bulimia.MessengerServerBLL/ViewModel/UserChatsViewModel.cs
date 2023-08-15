@@ -22,58 +22,40 @@ namespace Bulimia.MessengerClient.ViewModel
 {
     public class UserChatsViewModel : ReactiveObject, IRoutableViewModel, IDisposable
     {
-        public string UrlPathSegment => "userChats";
-        public IScreen HostScreen { get; }
         private readonly int _id;
         private readonly IMessageBoxCreator _messageBoxCreator;
         private readonly ChatClient _chatClient;
         private readonly UserClient _userClient;
-        private ChatModel OpenedChat { get; set; }
+        private readonly SoundPlayer _player = new SoundPlayer(Directory.GetCurrentDirectory() + @"\Sounds\noti.wav");
         private bool _isFirstGettingUpdates = true;
         private bool _isDisposed;
-        private readonly SoundPlayer _player = new SoundPlayer(Directory.GetCurrentDirectory() + @"\Sounds\noti.wav");
-        [Reactive]
-        public string CompanionUsername { get; set; }
-        [Reactive]
-        public ChatModel SelectedChat { get; set; }
-        [Reactive]
-        public MessageModel SelectedMessage { get; set; }
-        [Reactive]
-        public UserModel SelectedUserInSearch { get; set; }
-        [Reactive]
-        public string MessageText { get; set; }
-        [Reactive]
-        public string UserSearchText { get; set; }
-        [Reactive]
-        private bool IsEditing { get; set; }
-        [Reactive]
-        public bool IsSearchingOpen { get; set; }
-        [Reactive]
-        public bool TextBlockZeroChatsVisibility { get; set; }
-        [Reactive]
-        public bool ListViewLastMessagesVisibility { get; set; }
-        [Reactive]
-        public bool StackPanelZeroMessagesVisibility { get; set; }
-        [Reactive]
-        public bool ListViewMessagesVisibility { get; set; }
-        [Reactive]
-        public bool ManipulatingPanelVisibility { get; set; }
-        [Reactive]
-        public bool CancelButtonVisibility { get; set; }
-        [Reactive]
-        public bool MessagesGridVisibility { get; set; }
-        [Reactive]
-        public bool ChatProgressBarVisibility { get; set; } = true;
-        [Reactive]
-        public bool MessagesProgressBarVisibility { get; set; } = true;
+        public string UrlPathSegment => "userChats";
 
-        [Reactive]
-        public ObservableCollection<ChatModel> Chats { get; set; } = new ObservableCollection<ChatModel>();
-        [Reactive]
-        public ObservableCollection<UserModel> Users { get; set; }
+        private ChatModel OpenedChat { get; set; }
+        public IScreen HostScreen { get; }
 
-        [Reactive]
-        public ObservableCollection<MessageModel> Messages { get; set; } = new ObservableCollection<MessageModel>();
+        [Reactive] public string CompanionUsername { get; set; }
+        [Reactive] public ChatModel SelectedChat { get; set; }
+        [Reactive] public MessageModel SelectedMessage { get; set; }
+        [Reactive] public UserModel SelectedUserInSearch { get; set; }
+        [Reactive] public string MessageText { get; set; }
+        [Reactive] public string UserSearchText { get; set; }
+        [Reactive] private bool IsEditing { get; set; }
+        [Reactive] public bool IsSearchingOpen { get; set; }
+        [Reactive] public bool TextBlockZeroChatsVisibility { get; set; }
+        [Reactive] public bool ListViewLastMessagesVisibility { get; set; }
+        [Reactive] public bool StackPanelZeroMessagesVisibility { get; set; }
+        [Reactive] public bool ListViewMessagesVisibility { get; set; }
+        [Reactive] public bool ManipulatingPanelVisibility { get; set; }
+        [Reactive] public bool CancelButtonVisibility { get; set; }
+        [Reactive] public bool MessagesGridVisibility { get; set; }
+        [Reactive] public bool ChatProgressBarVisibility { get; set; } = true;
+        [Reactive] public bool MessagesProgressBarVisibility { get; set; } = true;
+
+        [Reactive] public ObservableCollection<ChatModel> Chats { get; set; } = new ObservableCollection<ChatModel>();
+        [Reactive] public ObservableCollection<UserModel> Users { get; set; }
+
+        [Reactive] public ObservableCollection<MessageModel> Messages { get; set; } = new ObservableCollection<MessageModel>();
         public ReactiveCommand<Unit, Unit> DeletingMessageCommand { get; }
         public ReactiveCommand<Unit, Unit> CreatingMessageCommand { get; }
         public ReactiveCommand<Unit, Unit> ChangingToEditingCommand { get; }
@@ -85,6 +67,7 @@ namespace Bulimia.MessengerClient.ViewModel
             _chatClient = new ChatClient();
             _userClient = new UserClient();
             _id = id;
+            _messageBoxCreator = Locator.Current.GetService<IMessageBoxCreator>();
 
             HostScreen = Locator.Current.GetService<IScreen>();
 
@@ -124,13 +107,10 @@ namespace Bulimia.MessengerClient.ViewModel
 
                 OpenChat(chat);
                 UserSearchText = string.Empty;
-            }); 
+            });
             this.WhenAnyValue(x => x.SelectedChat).Subscribe(OpenChat);
             this.WhenAnyValue(x => x.UserSearchText).Subscribe(SearchUsers);
-
-
-            _messageBoxCreator = Locator.Current.GetService<IMessageBoxCreator>();
-
+            
             ChangingToEditingCommand = ReactiveCommand.Create(ChangeToEditing);
             DeletingMessageCommand = ReactiveCommand.CreateFromTask(DeleteMessage);
             CreatingMessageCommand = ReactiveCommand.CreateFromTask(UploadMessage);
@@ -138,8 +118,6 @@ namespace Bulimia.MessengerClient.ViewModel
             CancelCommand = ReactiveCommand.Create(CancelUpdate);
 
             MessageBus.Current.Listen<DisposeMessage>().Subscribe(x => Dispose());
-
-
         }
 
         public async Task Init()
@@ -234,18 +212,19 @@ namespace Bulimia.MessengerClient.ViewModel
             }
         }
 
-        private async void OpenChat(ChatModel x)
+        private async void OpenChat(ChatModel selectedChat)
         {
-            if (x == null) return;
+            if (selectedChat == null) return;
 
-            OpenedChat = x;
-            CompanionUsername = x.Username;
+            OpenedChat = selectedChat;
+            CompanionUsername = selectedChat.Username;
 
             MessagesGridVisibility = true;
-            var chat = Chats.FirstOrDefault(y => y.Id == x.Id);
+            var chat = Chats.FirstOrDefault(x => x.Id == selectedChat.Id);
             MessagesProgressBarVisibility = false;
 
-            if (chat == null) return; //значит, у нас открывается чат с новым пользователем
+            //Если открывается диалог с новым пользователем
+            if (chat == null) return;
 
             chat.NewMessageSignVisibility = Visibility.Collapsed;
 
@@ -301,7 +280,7 @@ namespace Bulimia.MessengerClient.ViewModel
 
             if (result == 0) return result;
 
-            var messageDto = new MessageModel
+            var messageModel = new MessageModel
             {
                 DateTimeOfDelivery = DateTime.Now,
                 Id = result,
@@ -311,15 +290,15 @@ namespace Bulimia.MessengerClient.ViewModel
                 SenderUsername = App.Username
             };
 
-            Messages.Add(messageDto);
+            Messages.Add(messageModel);
 
             var newChat = new ChatModel
             {
-                Username = messageDto.ReceiverUsername,
-                DateTimeOfLastMessage = messageDto.DateTimeOfDelivery,
+                Username = messageModel.ReceiverUsername,
+                DateTimeOfLastMessage = messageModel.DateTimeOfDelivery,
                 Id = OpenedChat.Id,
-                LastMessage = messageDto.Text,
-                SenderUsernameOfMessage = messageDto.SenderUsername
+                LastMessage = messageModel.Text,
+                SenderUsernameOfMessage = messageModel.SenderUsername
             };
 
             var oldChat = Chats.FirstOrDefault(x => x.Id == OpenedChat.Id);
@@ -337,7 +316,6 @@ namespace Bulimia.MessengerClient.ViewModel
                 Chats.AddRange(orderedChats);
             }
             OpenedChat = newChat;
-
 
             return result;
         }
@@ -362,7 +340,7 @@ namespace Bulimia.MessengerClient.ViewModel
             }
             else
             {
-                _messageBoxCreator.CreateMessageBox("ошибка в обновлении сообщения во внутреннем списке");
+                _messageBoxCreator.CreateMessageBox("Ошибка в обновлении сообщения во внутреннем списке");
                 return result;
             }
 
@@ -380,6 +358,7 @@ namespace Bulimia.MessengerClient.ViewModel
         {
             var messageBoxResult = _messageBoxCreator.CreateMessageBox("Удалить сообщение?", "Внимание", MessageBoxButton.YesNo);
             if (messageBoxResult != MessageBoxResult.Yes) return;
+            
             if (SelectedMessage == null) return;
 
             var result = await _chatClient.DeleteMessage(SelectedMessage.Id);

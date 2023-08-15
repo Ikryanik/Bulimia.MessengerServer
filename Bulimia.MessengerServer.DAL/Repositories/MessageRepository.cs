@@ -120,7 +120,8 @@ public class MessageRepository
     public async Task<Chat?> GetChat(int userId, int companionId)
     {
         var result = await _context.Messages.Where(x =>
-            x.ReceiverId == userId && x.SenderId == companionId || x.ReceiverId == companionId && x.SenderId == userId)
+            x.ReceiverId == userId && x.SenderId == companionId 
+            || x.ReceiverId == companionId && x.SenderId == userId)
             .OrderBy(x => x.DateTimeDelivery)
             .LastOrDefaultAsync();
 

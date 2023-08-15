@@ -13,6 +13,7 @@ namespace Bulimia.MessengerClient.View
         {
             InitializeComponent();
             ViewModel = new FirstViewModel();
+
             this.WhenActivated(disposables =>
             {
                 this.OneWayBind(ViewModel,
